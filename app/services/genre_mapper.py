@@ -1,82 +1,74 @@
+"""Réduit les genres granulaires de Spotify à une liste canonique.
 
-"""Réduit les genres ultra-granulaires de Spotify à une liste canonique.
+Spotify renvoie "melodic drill", "cali rap", "escape room" — utilisable pour
+un algorithme, illisible pour des tags cliquables. On mappe donc sur une liste
+courte qui correspond aux tags de vibe des wireframes DigsCover.
 
 ⚠️ L'ORDRE COMPTE : le premier mot-clé trouvé gagne.
-Exemples de pièges évités par l'ordre ci-dessous :
-  - "reggaeton" contient "reggae"      → Reggaeton doit passer AVANT Reggae
-  - "hyperpop" et "k-pop" contiennent "pop" → avant Pop
-  - "lo-fi hip hop" contient "hip hop" → Lo-Fi avant Hip-Hop
-  - "melodic drill" contient "drill"   → Drill avant Hip-Hop
-  - "dancehall" contient "dance"       → Dancehall avant Electro
+   "reggaeton" contient "reggae"  → Reggaeton avant Reggae
+   "hyperpop" contient "pop"      → Hyperpop avant Pop
+   "melodic drill" contient "drill" → Drill avant Hip-Hop
 """
 
 GENRE_MAP = [
-    # --- Sous-genres rap : les plus spécifiques en premier ---
-    ('Boom Bap',   ['boom bap', 'golden age hip hop', 'east coast hip hop']),
-    ('Drill',      ['drill']),
-    ('Phonk',      ['phonk', 'memphis']),
-    ('Cloud Rap',  ['cloud rap', 'emo rap', 'sad rap']),
-    ('Trap',       ['trap']),
-    ('Grime',      ['grime', 'uk garage rap']),
-    ('Lo-Fi',      ['lo-fi', 'lofi', 'chillhop']),
+    ('Boom Bap',    ['boom bap', 'golden age hip hop', 'east coast hip hop']),
+    ('Drill',       ['drill']),
+    ('Phonk',       ['phonk', 'memphis']),
+    ('Cloud Rap',   ['cloud rap', 'emo rap', 'sad rap']),
+    ('Trap',        ['trap']),
+    ('Grime',       ['grime']),
+    ('Lo-Fi',       ['lo-fi', 'lofi', 'chillhop']),
+    ('Hip-Hop',     ['hip hop', 'hiphop', 'rap', 'conscious', 'g funk']),
 
-    # --- Rap générique (après ses sous-genres) ---
-    ('Hip-Hop',    ['hip hop', 'hiphop', 'rap', 'conscious', 'g funk']),
+    ('Amapiano',    ['amapiano']),
+    ('Afrobeats',   ['afrobeat', 'afroswing', 'afro pop', 'afropop', 'naija']),
+    ('Reggaeton',   ['reggaeton', 'latin trap', 'perreo']),
+    ('Dancehall',   ['dancehall', 'bashment']),
+    ('Reggae',      ['reggae', 'dub', 'roots', 'ska']),
+    ('Zouk',        ['zouk', 'kompa', 'kizomba', 'coupe decale']),
+    ('Latin',       ['latin', 'salsa', 'bachata', 'cumbia', 'bossa', 'samba']),
 
-    # --- Afro / Caraïbes / Latin ---
-    ('Amapiano',   ['amapiano']),
-    ('Afrobeats',  ['afrobeat', 'afroswing', 'afro pop', 'afropop', 'naija']),
-    ('Reggaeton',  ['reggaeton', 'latin trap', 'perreo']),
-    ('Dancehall',  ['dancehall', 'bashment']),
-    ('Reggae',     ['reggae', 'dub', 'roots', 'ska']),
-    ('Zouk',       ['zouk', 'kompa', 'kizomba', 'coupe decale']),
-    ('Latin',      ['latin', 'salsa', 'bachata', 'cumbia', 'bossa', 'samba']),
+    ('Gospel',      ['gospel', 'worship']),
+    ('Neo-Soul',    ['neo soul', 'neo-soul', 'alternative r&b']),
+    ('R&B',         ['r&b', 'rnb', 'new jack']),
+    ('Soul',        ['soul', 'motown']),
+    ('Funk',        ['funk', 'disco', 'boogie']),
 
-    # --- Soul / R&B / Funk ---
-    ('Gospel',     ['gospel', 'worship', 'spiritual']),
-    ('Neo-Soul',   ['neo soul', 'neo-soul', 'alternative r&b']),
-    ('R&B',        ['r&b', 'rnb', 'contemporary r&b', 'new jack']),
-    ('Soul',       ['soul', 'motown', 'northern soul']),
-    ('Funk',       ['funk', 'disco', 'boogie', 'p funk']),
+    ('Jazz',        ['jazz', 'bebop', 'swing', 'fusion']),
+    ('Blues',       ['blues', 'delta']),
 
-    # --- Jazz / Blues ---
-    ('Jazz',       ['jazz', 'bebop', 'hard bop', 'swing', 'fusion']),
-    ('Blues',      ['blues', 'delta', 'boogie woogie']),
+    ('Jersey Club', ['jersey club', 'baltimore club', 'baile funk']),
+    ('Drum & Bass', ['drum and bass', 'drum n bass', 'dnb', 'jungle', 'breakcore']),
+    ('Garage',      ['uk garage', 'speed garage', '2-step']),
+    ('House',       ['house', 'gqom']),
+    ('Techno',      ['techno', 'minimal', 'acid']),
+    ('Ambient',     ['ambient', 'drone']),
+    ('Electro',     ['electro', 'edm', 'dubstep', 'synthwave', 'idm', 'dance']),
 
-    # --- Électronique : sous-genres avant Electro ---
-    ('Jersey Club',['jersey club', 'baltimore club', 'baile funk']),
-    ('Drum & Bass',['drum and bass', 'drum n bass', 'dnb', 'jungle', 'breakcore']),
-    ('Garage',     ['uk garage', 'speed garage', '2-step']),
-    ('House',      ['house', 'deep house', 'tech house', 'gqom']),
-    ('Techno',     ['techno', 'minimal', 'acid']),
-    ('Ambient',    ['ambient', 'drone', 'new age']),
-    ('Electro',    ['electro', 'edm', 'dubstep', 'synthwave', 'idm', 'dance']),
+    ('Hyperpop',    ['hyperpop', 'glitch pop', 'digicore']),
+    ('K-Pop',       ['k-pop', 'kpop', 'j-pop', 'jpop']),
+    ('Bedroom Pop', ['bedroom', 'dream pop']),
 
-    # --- Pop : sous-genres avant Pop ---
-    ('Hyperpop',   ['hyperpop', 'glitch pop', 'digicore']),
-    ('K-Pop',      ['k-pop', 'kpop', 'j-pop', 'jpop']),
-    ('Bedroom Pop',['bedroom', 'dream pop']),
+    ('Shoegaze',    ['shoegaze', 'noise pop']),
+    ('Punk',        ['punk', 'hardcore', 'emo']),
+    ('Metal',       ['metal', 'doom', 'sludge']),
+    ('Indie',       ['indie', 'alternative']),
+    ('Rock',        ['rock', 'grunge', 'psychedelic']),
 
-    # --- Rock / Indie ---
-    ('Shoegaze',   ['shoegaze', 'noise pop']),
-    ('Punk',       ['punk', 'hardcore', 'emo']),
-    ('Metal',      ['metal', 'doom', 'sludge', 'grindcore']),
-    ('Indie',      ['indie', 'alternative', 'lo-fi rock']),
-    ('Rock',       ['rock', 'grunge', 'psychedelic', 'garage rock']),
+    ('Raï',         ['rai', 'chaabi', 'gnawa']),
+    ('Français',    ['chanson', 'variete francaise', 'french pop']),
+    ('Country',     ['country', 'americana', 'bluegrass', 'folk']),
+    ('Classique',   ['classical', 'baroque', 'opera', 'orchestra']),
+    ('Soundtrack',  ['soundtrack', 'score', 'anime', 'video game']),
 
-    # --- Autres ---
-    ('Afro-Trap',  ['afro trap', 'afrotrap']),
-    ('Raï',        ['rai', 'chaabi', 'gnawa']),
-    ('Français',   ['chanson', 'variete francaise', 'french pop']),
-    ('Country',    ['country', 'americana', 'bluegrass', 'folk']),
-    ('Classique',  ['classical', 'baroque', 'opera', 'orchestra']),
-    ('Soundtrack', ['soundtrack', 'score', 'anime', 'video game']),
-
-    # --- Pop générique en dernier (attrape tout ce qui reste) ---
-    ('Pop',        ['pop']),
+    ('Pop',         ['pop']),   # en dernier : attrape tout ce qui reste
 ]
 
 CANONICAL_GENRES = [name for name, _ in GENRE_MAP] + ['Other']
+
+# Les tags affichés en dur sur DigsCover ; le reste derrière le bouton "..."
+FEATURED_GENRES = ['Hip-Hop', 'R&B', 'Drill', 'Trap', 'Boom Bap', 'Afrobeats',
+                   'Jazz', 'Soul', 'Indie', 'Electro', 'Pop', 'Reggae']
 
 
 def map_genre(spotify_genres):
