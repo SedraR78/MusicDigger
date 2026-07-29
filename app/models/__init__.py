@@ -1,14 +1,28 @@
-from app import db
+# app/models/__init__.py
+"""Point d'entrée des models : un seul import charge toutes les tables.
 
-# Import BaseModel first (others inherit from it)
+Critique pour Flask-Migrate : il ne détecte que les models importés.
+Un model absent de ce fichier = une table absente de ta base.
+"""
+
+# 1. Les tables de liaison d'abord (elles ne dépendent de rien)
+from .associations import (
+    user_favorite_artists,
+    user_favorite_genres,
+    user_favorite_tracks,
+)
+
+# 2. La classe mère
 from .base_model import BaseModel
 
-# Import all models
-from .user import User
-from .artist import Artist
-from .track import Track
-from .album import Album
+# 3. Le catalogue musical
 from .genre import Genre
+from .artist import Artist
+from .album import Album
+from .track import Track
+
+# 4. Les utilisateurs et le social
+from .user import User
 from .dig import Dig
 from .upvote import Upvote
 from .redig import Redig
@@ -16,39 +30,13 @@ from .comment import Comment
 from .follow import Follow
 from .user_history import UserHistory
 
-# Many-to-Many relationship tables (must be defined here)
-user_favorite_artists = db.Table(
-    'user_favorite_artists',
-    db.Column('user_id', db.String(36), db.ForeignKey('users.id'), primary_key=True),
-    db.Column('artist_id', db.String(36), db.ForeignKey('artists.id'), primary_key=True)
-)
-
-user_favorite_genres = db.Table(
-    'user_favorite_genres',
-    db.Column('user_id', db.String(36), db.ForeignKey('users.id'), primary_key=True),
-    db.Column('genre_id', db.String(36), db.ForeignKey('genres.id'), primary_key=True)
-)
-
-user_favorite_tracks = db.Table(
-    'user_favorite_tracks',
-    db.Column('user_id', db.String(36), db.ForeignKey('users.id'), primary_key=True),
-    db.Column('track_id', db.String(36), db.ForeignKey('tracks.id'), primary_key=True)
-)
+from .conversation import Conversation
+from .message import Message
 
 __all__ = [
     'BaseModel',
-    'User',
-    'Artist',
-    'Track',
-    'Album',
-    'Genre',
-    'Dig',
-    'Upvote',
-    'Redig',
-    'Comment',
-    'Follow',
-    'UserHistory',
-    'user_favorite_artists',
-    'user_favorite_genres',
-    'user_favorite_tracks'
+    'Genre', 'Artist', 'Album', 'Track',
+    'User', 'Dig', 'Upvote', 'Redig', 'Comment', 'Follow', 'UserHistory',
+    'user_favorite_artists', 'user_favorite_genres', 'user_favorite_tracks',
+    'Conversation', 'Message',
 ]
