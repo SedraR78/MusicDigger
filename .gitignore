@@ -5,3 +5,4 @@ __pycache__/
 .DS_Store
 migrations/versions/__pycache__/
 .vscode/
+instance/

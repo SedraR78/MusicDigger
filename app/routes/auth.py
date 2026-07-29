@@ -6,7 +6,8 @@ from flask_jwt_extended import (
     get_jwt_identity
 )
 from app import db
-from app.models.associations import User, Artist, Genre, Track, user_favorite_genres
+from app.models import User, Artist, Genre, Track
+from app.models.associations import user_favorite_genres
 
 auth_bp = Blueprint('auth', __name__)
 
