@@ -31,6 +31,9 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'super-secret-key')
+    app.config['SPOTIFY_CLIENT_ID'] = os.getenv('SPOTIFY_CLIENT_ID')
+    app.config['SPOTIFY_CLIENT_SECRET'] = os.getenv('SPOTIFY_CLIENT_SECRET')
+    app.config['YOUTUBE_API_KEY'] = os.getenv('YOUTUBE_API_KEY')
 
     # Access token court : un JWT ne peut pas être révoqué, donc on réduit
     # la fenêtre d'exploitation d'un token volé. Le refresh token (long)
