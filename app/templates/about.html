@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block title %}About — MusicDigger{% endblock %}
+
+{% block content %}
+
+  {# ---------- Le pitch ---------- #}
+  <div class="mb-10">
+    <h1 class="text-3xl font-bold leading-tight sm:text-4xl">
+      You can't just drop a link.<br>
+      You have to say why it matters.
+    </h1>
+    <p class="mt-4 text-lg text-neutral-400">
+      A place for people who still care where a song came from.
+    </p>
+  </div>
+
+  {# ---------- Le problème ---------- #}
+  <section class="mb-10">
+    <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-neutral-500">
+      Why this exists
+    </h2>
+
+    <div class="space-y-4 text-neutral-300">
+      <p>
+        There was a time when finding a record took effort. You went through
+        crates, you asked people, you taped things off the radio at 2am hoping
+        the DJ wouldn't talk over the intro. And because it took effort, you
+        remembered exactly who put you onto what.
+      </p>
+      <p>
+        Now a machine queues the next track before the current one ends. It's
+        good at it. Too good — after a while everything sounds like the last
+        thing you played, and you couldn't name a single person responsible for
+        any of it.
+      </p>
+      <p>
+        And when we do send each other music, it's a link in a group chat. No
+        context. No "wait for what he does at 1:40". Just a link, and the other
+        person hears a song instead of the thing you heard.
+      </p>
+    </div>
+
+    <blockquote class="mt-6 border-l-2 border-dig pl-4">
+      <p class="text-lg italic text-neutral-200">
+        "Birthdays was the worst days, now we sip champagne when we thirsty."
+      </p>
+      <p class="mt-1.5 text-sm text-neutral-500">
+        Biggie, <span class="text-neutral-400">Juicy</span>. Send the link and
+        it's just a good song. Say "listen to what he does with the birthday
+        line" and it becomes something else. That's the whole difference.
+      </p>
+    </blockquote>
+  </section>
+
+  {# ---------- Le partage ---------- #}
+  <section class="mb-10">
+    <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-neutral-500">
+      Sharing is the point
+    </h2>
+
+    <div class="space-y-4 text-neutral-300">
+      <p>
+        Nobody found their favourite album alone. Someone's older brother
+        played it. Someone's mate wouldn't shut up about it until you gave in.
+        A producer sampled something and you spent a week tracking the original.
+      </p>
+      <p>
+        Every good record in your life has a person attached to it. Algorithms
+        can't do that — they can only tell you what's similar. A person tells
+        you what's worth your time, and why.
+      </p>
+    </div>
+
+    {#
+      Ta punchline ici. Mets la ligne qui t'a arrêté la première fois que tu
+      l'as entendue, et une phrase pour dire pourquoi.
+    #}
+    <blockquote class="mt-6 border-l-2 border-dig pl-4">
+      <p class="text-lg italic text-neutral-200">
+        "…"
+      </p>
+      <p class="mt-1.5 text-sm text-neutral-500">
+        Artist, <span class="text-neutral-400">Track</span>. Somebody put you
+        onto this one. That's the whole app.
+      </p>
+    </blockquote>
+  </section>
+
+  {# ---------- Comment ça marche ---------- #}
+  <section class="mb-10">
+    <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-neutral-500">
+      How it works
+    </h2>
+
+    <div class="grid gap-3 sm:grid-cols-2">
+      {% for title, body in [
+        ('A DIG is a song plus your take',
+         'Find the track, say why it hits. The opinion is not a bonus field — you cannot post without it.'),
+        ('Upvote if you agree, ReDig if you mean it',
+         'An upvote is a nod. A ReDig puts the song in your own feed, so it counts double in the ranking. Cosigning costs something.'),
+        ('DigsCover finds what nobody dug yet',
+         'It reads what you dig and what people with your taste dug, then points at tracks still sitting untouched. Every card tells you why it showed up.'),
+        ('Your feed is people, not a formula',
+         'You pick who you follow. Nothing gets injected, nothing gets reordered. If your feed is boring, follow better diggers.'),
+        ('Send it straight to someone',
+         'Any DIG can go into a DM with a word attached. That is how music actually travels — one person telling another.'),
+        ('The catalog is built by hand',
+         'Every track in here is here because somebody had something to say about it. Nothing was imported in bulk.')
+      ] %}
+        <div class="rounded-2xl border border-edge bg-panel p-4">
+          <h3 class="mb-1.5 font-semibold">{{ title }}</h3>
+          <p class="text-sm leading-relaxed text-neutral-400">{{ body }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  {# ---------- Le nom ---------- #}
+  <section class="mb-10">
+    <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-neutral-500">
+      Why "digging"
+    </h2>
+
+    <p class="text-neutral-300">
+      Crate digging is going through records one by one until something stops
+      you. Producers did it for samples, DJs did it for sets, and everyone else
+      did it because that's how you found anything. It was slow, and that was
+      the point — the work is what made the find yours.
+    </p>
+
+    <blockquote class="mt-5 border-l-2 border-dig pl-4">
+      <p class="text-lg italic text-neutral-200">
+        "I came from no space, wasn't safe. Now it's like no space in a safe."
+      </p>
+      <p class="mt-1.5 text-sm text-neutral-500">
+        Fabolous. You either heard that and stopped the song, or you didn't.
+        This is a place for the people who stopped the song.
+      </p>
+    </blockquote>
+  </section>
+
+  {# ---------- Les chiffres, en direct ---------- #}
+  <section class="mb-10 rounded-2xl border border-edge bg-panel p-5">
+    <div class="grid grid-cols-3 gap-4 text-center">
+      <div>
+        <p class="text-3xl font-bold text-dig">{{ stats.digs }}</p>
+        <p class="mt-0.5 text-xs text-neutral-500">digs posted</p>
+      </div>
+      <div>
+        <p class="text-3xl font-bold text-dig">{{ stats.tracks }}</p>
+        <p class="mt-0.5 text-xs text-neutral-500">tracks unearthed</p>
+      </div>
+      <div>
+        <p class="text-3xl font-bold text-dig">{{ stats.diggers }}</p>
+        <p class="mt-0.5 text-xs text-neutral-500">diggers</p>
+      </div>
+    </div>
+    <p class="mt-4 text-center text-xs text-neutral-500">
+      Every one of those tracks got here because somebody vouched for it.
+    </p>
+  </section>
+
+  {# ---------- Appel à l'action ---------- #}
+  <div class="rounded-2xl border border-edge bg-panel p-6 text-center">
+    <p class="text-lg font-medium">Got a song nobody's touched yet?</p>
+    <p class="mt-1 text-sm text-neutral-400">Go be the first.</p>
+    <div class="mt-4 flex flex-wrap justify-center gap-2">
+      <a href="/digscover"
+         class="rounded-full bg-dig px-5 py-2.5 text-sm font-semibold text-white
+                hover:brightness-110">⛏ Start digging</a>
+      <a href="/trending"
+         class="rounded-full border border-edge px-5 py-2.5 text-sm text-neutral-300
+                hover:bg-edge hover:text-white">See what's moving</a>
+    </div>
+  </div>
+
+  <p class="mt-8 text-center text-xs text-neutral-600">
+    Holberton School portfolio project ·
+    <a href="https://github.com/SedraR78/MusicDigger"
+       class="hover:text-neutral-400">Source on GitHub</a>
+  </p>
+{% endblock %}

@@ -124,15 +124,6 @@ def people():
                            active='people')
 
 
-@pages_bp.route('/about')
-def about():
-    """Page manifeste. Explique le produit à quelqu'un qui arrive sans contexte."""
-    stats = {
-        'digs':    Dig.query.count(),
-        'tracks':  Track.query.count(),
-        'diggers': User.query.filter(User.is_deleted.is_(False)).count(),
-    }
-    return render_template('about.html', stats=stats, active='about')
 
 
 @pages_bp.route('/digs/<dig_id>')
@@ -198,3 +189,13 @@ def login():
 @pages_bp.route('/register')
 def register():
     return render_template('auth/register.html', active='')
+
+@pages_bp.route('/about')
+def about():
+    """Page manifeste. Explique le produit à quelqu'un qui arrive sans contexte."""
+    stats = {
+        'digs':    Dig.query.count(),
+        'tracks':  Track.query.count(),
+        'diggers': User.query.filter(User.is_deleted.is_(False)).count(),
+    }
+    return render_template('about.html', stats=stats, active='about')

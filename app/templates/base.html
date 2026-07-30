@@ -105,12 +105,13 @@
         La variable `active` est passée par chaque page pour surligner
         l'entrée courante.
       #}
-      {% set nav_items = [
+    {% set nav_items = [
         ('trending',  '/trending',  'Trending'),
         ('feed',      '/feed',      'Following'),
         ('digscover', '/digscover', 'DigsCover'),
         ('people',    '/people',    'People'),
-        ('messages',  '/messages',  'Messages')
+        ('messages',  '/messages',  'Messages'),
+        ('about',     '/about',     'About')
       ] %}
 
       {% for key, url, label in nav_items %}

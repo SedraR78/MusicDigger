@@ -23,7 +23,8 @@ based on what people with similar taste have dug.
 - **DIGs** — post a song with a mandatory opinion. Metadata is fetched
   automatically from Spotify, with YouTube as a fallback and manual entry as a
   last resort.
-- **Trending** — public ranking, score = upvotes + 2 × ReDigs.
+- **Trending** — public ranking, score = upvotes + 2 × ReDigs. Filterable by
+  period and genre.
 - **DigsCover** — recommends *tracks from the catalog*, not existing posts, so
   users can be the first to dig a song. Uses collaborative filtering.
 - **Social** — follow curators, personal feed, public profiles.
@@ -89,8 +90,11 @@ Create the database and load demo data:
 
 ```bash
 flask --app "app:create_app" db upgrade
-python seed.py
+python seed_big.py
 ```
+
+The seed calls Spotify once per track, so it takes a few minutes. It is safe
+to re-run — users and digs that already exist are skipped.
 
 Run it:
 
@@ -103,6 +107,21 @@ Open http://127.0.0.1:5006 — log in with any seeded account
 
 ---
 
+## Pages
+
+| Route | What it does |
+| --- | --- |
+| `/trending` | public ranking, filterable by period and genre |
+| `/digscover` | recommendations — works without an account, personalized with one |
+| `/feed` | digs from the people you follow |
+| `/u/<username>` | public profile |
+| `/artist/<name>` | every dig posted about an artist |
+| `/people` | directory of diggers |
+| `/messages` | 1-to-1 conversations, with DIGs shareable in chat |
+| `/about` | what the project is and why |
+
+---
+
 ## Project structure
 
 app/
@@ -112,7 +131,7 @@ app/
 ├── templates/ # Jinja2 pages and components
 └── static/js/ # Vanilla JS, Fetch API
 migrations/ # Alembic migrations
-seed.py # Demo data
+seed_big.py # Demo data
 
 
 ---
@@ -174,6 +193,7 @@ users' conversations would lose chunks.
 - Genres come from a local 611-artist mapping plus community tagging.
   Importing a MusicBrainz dump is the next step.
 - Messages use polling, not WebSockets.
+- The onboarding endpoint is implemented but has no dedicated UI yet.
 
 ---
 
