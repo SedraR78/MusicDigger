@@ -1,0 +1,99 @@
+{#
+  Carte DIG réutilisable. Utilisée par Trending, le feed, les profils.
+
+  Jinja2 : {% include %} avec un paramètre `dig` permet de définir le composant
+  une seule fois. Si on change la carte, les trois pages suivent.
+
+  C'est le composant DigCard du Stage 3, section 3.
+#}
+<article class="rounded-2xl border border-edge bg-panel p-4 transition hover:border-neutral-700"
+         data-dig-id="{{ dig.id }}">
+
+  <!-- En-tête : auteur -->
+  <header class="mb-3 flex items-center gap-2.5">
+    <a href="/u/{{ dig.user.username }}"
+       class="flex h-9 w-9 items-center justify-center rounded-full border border-edge
+              bg-ink text-sm font-medium">
+      {{ dig.user.display_name[0]|upper }}
+    </a>
+    <a href="/u/{{ dig.user.username }}" class="text-sm font-semibold hover:underline">
+      {{ dig.user.display_name }}
+    </a>
+    <span class="text-xs text-neutral-500">
+      {{ dig.created_at.strftime('%d %b') }}
+    </span>
+  </header>
+
+  <!-- Le morceau + l'avis, en deux colonnes sur desktop -->
+  <div class="flex flex-col gap-4 sm:flex-row">
+
+    <!-- Pochette -->
+    <div class="shrink-0">
+      {% if dig.display_cover %}
+        <img src="{{ dig.display_cover }}" alt="{{ dig.display_title }}"
+             class="h-28 w-28 rounded-lg object-cover">
+      {% else %}
+        <div class="flex h-28 w-28 items-center justify-center rounded-lg
+                    border border-edge bg-ink text-2xl text-neutral-600">♪</div>
+      {% endif %}
+    </div>
+
+    <!-- Infos + avis -->
+    <div class="min-w-0 flex-1">
+      <h3 class="truncate font-bold leading-tight">{{ dig.display_title }}</h3>
+      <p class="truncate text-sm text-neutral-400">{{ dig.display_artist }}</p>
+
+      {% if dig.display_album %}
+        <p class="truncate text-xs text-neutral-500">{{ dig.display_album }}</p>
+      {% endif %}
+
+      {% if dig.display_genre %}
+        <span class="mt-1.5 inline-block rounded-full border border-edge px-2 py-0.5
+                     text-xs text-neutral-400">{{ dig.display_genre }}</span>
+      {% endif %}
+
+      <!-- L'avis : le cœur du produit -->
+      <p class="mt-3 text-sm leading-relaxed text-neutral-200">{{ dig.content }}</p>
+    </div>
+  </div>
+
+  <!-- Le lecteur intégré -->
+  {% if dig.display_embed %}
+    <div class="mt-4 overflow-hidden rounded-lg">
+      <iframe src="{{ dig.display_embed }}" loading="lazy"
+              class="h-20 w-full border-0" allow="encrypted-media"></iframe>
+    </div>
+  {% endif %}
+
+  <!-- Barre d'actions : gérée par le JS, sans rechargement de page -->
+  <footer class="mt-3 flex items-center gap-1 border-t border-edge pt-3 text-sm">
+
+    <button data-action="upvote" data-dig="{{ dig.id }}"
+            class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5
+                   text-neutral-400 transition hover:bg-edge hover:text-white">
+      <span>⬆</span>
+      <span data-count="upvotes">{{ dig.upvotes_count }}</span>
+    </button>
+
+    <button data-action="redig" data-dig="{{ dig.id }}"
+            class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5
+                   text-neutral-400 transition hover:bg-edge hover:text-white">
+      <span>⛏</span>
+      <span data-count="redigs">{{ dig.redigs_count }}</span>
+    </button>
+
+    <a href="/digs/{{ dig.id }}"
+       class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5
+              text-neutral-400 transition hover:bg-edge hover:text-white">
+      <span>💬</span>
+      <span>{{ dig.comments_count }}</span>
+    </a>
+
+    <button data-action="share" data-dig="{{ dig.id }}"
+            class="ml-auto flex items-center gap-1.5 rounded-lg px-2.5 py-1.5
+                   text-neutral-400 transition hover:bg-edge hover:text-white">
+      <span>🔗</span>
+      <span class="hidden sm:inline">Share</span>
+    </button>
+  </footer>
+</article>

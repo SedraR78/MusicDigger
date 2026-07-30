@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Trending — MusicDigger{% endblock %}
+
+{% block content %}
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold">Trending</h1>
+    <p class="mt-1 text-sm text-neutral-400">
+      Ranked by score — an upvote counts once, a ReDig counts twice.
+    </p>
+  </div>
+
+  {# Filtres de période #}
+  <div class="mb-6 flex gap-2">
+    {% for value, label in [('day', 'Today'), ('week', 'This week'), ('all', 'All time')] %}
+      <a href="/trending?period={{ value }}"
+         class="rounded-full border border-edge px-3.5 py-1.5 text-sm
+                text-neutral-400 hover:bg-panel hover:text-white">{{ label }}</a>
+    {% endfor %}
+  </div>
+
+  {# La liste des DIGs #}
+  {% if digs %}
+    <div class="space-y-4">
+      {% for dig in digs %}
+        {% include "components/dig_card.html" %}
+      {% endfor %}
+    </div>
+  {% else %}
+    {# État vide : toujours prévoir le cas où il n'y a rien #}
+    <div class="rounded-2xl border border-edge bg-panel p-10 text-center">
+      <p class="text-3xl">⛏</p>
+      <p class="mt-3 font-medium">Nothing dug yet</p>
+      <p class="mt-1 text-sm text-neutral-400">Be the first to post a DIG.</p>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/digs.js') }}"></script>
+{% endblock %}

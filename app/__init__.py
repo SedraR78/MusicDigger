@@ -10,7 +10,7 @@ from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
-
+from flask import Flask, jsonify, request, render_template
 load_dotenv()
 
 # Extensions créées "à vide" au niveau du module, branchées sur l'app
@@ -51,10 +51,7 @@ def create_app():
     # Indispensable : Flask-Migrate ne détecte que les models importés.
     from app import models  # noqa: F401
 
-    # ---------- Routes de santé ----------
-    @app.route('/')
-    def home():
-        return jsonify({'message': 'MusicDigger is running!'}), 200
+
 
     # ---------- Blueprints ----------
     from app.routes.auth import auth_bp
@@ -66,9 +63,12 @@ def create_app():
     from app.routes.social_routes import social_bp
     from app.routes.digscover_routes import digscover_bp
     from app.routes.message_routes import message_bp
+    
     from app.routes.search_routes import search_bp
+    from app.routes.page_routes import pages_bp
     #
     app.register_blueprint(dig_bp, url_prefix='/api/digs')
+    app.register_blueprint(pages_bp) 
     app.register_blueprint(interaction_bp, url_prefix='/api/digs')
     app.register_blueprint(social_bp, url_prefix='/api/users')
     app.register_blueprint(digscover_bp, url_prefix='/api/digscover')
@@ -81,7 +81,10 @@ def create_app():
 
     @app.errorhandler(404)
     def not_found(e):
-        return jsonify({'error': 'Not found', 'code': 404}), 404
+        # Les routes /api renvoient du JSON, les pages renvoient du HTML
+        if request.path.startswith('/api/'):
+            return jsonify({'error': 'Not found', 'code': 404}), 404
+        return render_template('404.html'), 404
 
     @app.errorhandler(405)
     def method_not_allowed(e):
