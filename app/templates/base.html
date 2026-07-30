@@ -1,23 +1,16 @@
-<!-- app/templates/base.html -->
-<!--
-  Layout de toutes les pages. Porte la sidebar, la navbar et le thème.
-  Chaque page ne remplit que le bloc content.
-
-  C'est de l'héritage de template — même principe que l'héritage de classe.
--->
 <!DOCTYPE html>
 <html lang="en" class="dark">
 {#
   Layout de toutes les pages : sidebar, navbar, thème.
   Chaque page ne remplit que le bloc content.
-  Heritage de template : meme principe que l'heritage de classe.
+  Héritage de template — même principe que l'héritage de classe.
 #}
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}MusicDigger{% endblock %}</title>
 
-  <!-- Tailwind via CDN : pas de build step, conforme au Stage 3 -->
+  {# Tailwind via CDN : pas de build step, conforme au Stage 3 #}
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -51,25 +44,23 @@
   <header class="fixed top-0 inset-x-0 z-40 h-16 border-b border-edge bg-ink/95 backdrop-blur">
     <div class="flex h-full items-center gap-4 px-4 lg:px-6">
 
-      <!-- Logo -->
       <a href="/" class="flex shrink-0 items-center gap-2">
         <span class="text-xl">⛏</span>
         <span class="hidden text-lg font-bold tracking-tight sm:block">MusicDigger</span>
       </a>
 
-      <!-- Recherche globale : appelle /api/search/suggest en fetch -->
+      {# Recherche globale : appelle /api/search/suggest en fetch #}
       <div class="relative mx-auto w-full max-w-xl">
         <input id="globalSearch" type="text" autocomplete="off"
                placeholder="Search for songs, artists, albums, people..."
                class="w-full rounded-full border border-edge bg-panel px-4 py-2 text-sm
                       placeholder-neutral-500 outline-none focus:border-neutral-600">
-        <!-- La dropdown de suggestions, remplie par le JS -->
         <div id="searchResults"
              class="absolute inset-x-0 top-full mt-2 hidden overflow-hidden rounded-xl
                     border border-edge bg-panel shadow-2xl"></div>
       </div>
 
-      <!-- Zone auth : le JS bascule entre les deux selon le token -->
+      {# Zone auth : le JS bascule entre les deux selon le token #}
       <div class="flex shrink-0 items-center gap-2">
         <div id="authButtons" class="hidden items-center gap-2 sm:flex">
           <a href="/login"
@@ -79,7 +70,7 @@
                     hover:bg-white">Sign up</a>
         </div>
 
- <div id="userMenu" class="relative hidden">
+        <div id="userMenu" class="relative hidden">
           <button id="avatarBtn"
                   class="flex h-9 w-9 items-center justify-center rounded-full
                          border border-edge bg-panel text-sm font-medium
@@ -104,23 +95,22 @@
   </header>
 
   <!-- ============================================================
-       SIDEBAR
+       SIDEBAR (desktop uniquement)
        ============================================================ -->
   <aside class="fixed left-0 top-16 bottom-0 z-30 hidden w-56 flex-col
                 border-r border-edge bg-ink p-3 lg:flex">
 
     <nav class="flex-1 space-y-1">
       {#
-        Jinja2 : la variable `active` est passée par chaque page pour
-        surligner l'entrée courante. Défaut vide si non fournie.
+        La variable `active` est passée par chaque page pour surligner
+        l'entrée courante.
       #}
       {% set nav_items = [
         ('trending',  '/trending',  'Trending'),
         ('feed',      '/feed',      'Following'),
         ('digscover', '/digscover', 'DigsCover'),
         ('people',    '/people',    'People'),
-        ('messages',  '/messages',  'Messages'),
-        ('about',     '/about',     'About')
+        ('messages',  '/messages',  'Messages')
       ] %}
 
       {% for key, url, label in nav_items %}
@@ -136,7 +126,7 @@
       {% endfor %}
     </nav>
 
-    <!-- L'action principale de l'app, mise en avant -->
+    {# L'action principale de l'app, mise en avant #}
     <button id="openCreateDig"
             class="flex w-full items-center justify-center gap-2 rounded-xl bg-dig
                    px-4 py-3 text-sm font-semibold text-white transition hover:brightness-110">
@@ -147,30 +137,31 @@
   <!-- ============================================================
        CONTENU
        ============================================================ -->
-  <main class="mx-auto max-w-3xl px-4 pb-24 pt-24 lg:pl-64 lg:pr-8">
+  <main class="mx-auto max-w-5xl px-4 pb-24 pt-24 lg:pl-64 lg:pr-8">
     {% block content %}{% endblock %}
   </main>
 
   <!-- ============================================================
        NAVIGATION MOBILE
        ============================================================ -->
-  <nav class="fixed bottom-0 inset-x-0 z-40 flex items-center border-t border-edge bg-ink lg:hidden">
-  {% for key, url, label in [
+  <nav class="fixed bottom-0 inset-x-0 z-40 flex items-center gap-1 border-t
+              border-edge bg-ink px-2 py-1 lg:hidden">
+    {% for key, url, label in [
       ('trending',  '/trending',  'Trends'),
       ('feed',      '/feed',      'Feed'),
-      ('digscover', '/digscover', 'DigsCover'),
+      ('digscover', '/digscover', 'Dig'),
       ('messages',  '/messages',  'Msg')
     ] %}
       <a href="{{ url }}"
-         class="flex-1 py-3 text-center text-xs
-                {% if active == key %}text-white{% else %}text-neutral-500{% endif %}">
+         class="flex-1 rounded-lg py-2.5 text-center text-xs
+                {% if active == key %}bg-panel text-white{% else %}text-neutral-500{% endif %}">
         {{ label }}
       </a>
     {% endfor %}
 
     {# Le bouton principal doit rester accessible en mobile #}
     <button id="openCreateDigMobile"
-            class="mr-2 rounded-full bg-dig px-4 py-2 text-sm font-semibold text-white">
+            class="shrink-0 rounded-full bg-dig px-4 py-2.5 text-sm font-semibold text-white">
       ⛏
     </button>
   </nav>
@@ -181,11 +172,12 @@
   {% block modals %}{% endblock %}
 
   <!-- ============================================================
-       TOASTS (messages d'erreur et de succès)
+       TOASTS
        ============================================================ -->
-  <div id="toastZone" class="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 space-y-2 lg:bottom-6"></div>
+  <div id="toastZone"
+       class="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 space-y-2 lg:bottom-6"></div>
 
-  <!-- Le JS commun : gestion du token, appels API, toasts -->
+  {# Le JS commun : gestion du token, appels API, toasts #}
   <script src="{{ url_for('static', filename='js/api.js') }}"></script>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
   {% block scripts %}{% endblock %}

@@ -116,12 +116,12 @@ function wireGlobalSearch() {
 
 
 function suggestionUrl(s) {
-  if (s.type === 'user')  return `/u/${encodeURIComponent(s.label)}`;
-  if (s.type === 'track') return `/digscover?songs=${encodeURIComponent(s.label)}`;
-  return `/digscover?artists=${encodeURIComponent(s.label)}`;
+  if (s.type === 'user')   return `/u/${encodeURIComponent(s.label)}`;
+  if (s.type === 'artist') return `/artist/${encodeURIComponent(s.label)}`;
+  // Pour un morceau, on renvoie vers DigsCover : il n'y a pas
+  // (encore) de page dédiée par track.
+  return `/digscover?songs=${encodeURIComponent(s.label)}`;
 }
-
-
 /*
  * Échappement HTML : indispensable dès qu'on injecte du contenu utilisateur
  * dans innerHTML. Sans ça, un pseudo contenant du HTML pourrait exécuter du

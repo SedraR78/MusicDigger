@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ artist.name }} — MusicDigger{% endblock %}
+
+{% block content %}
+  <header class="mb-6 rounded-2xl border border-edge bg-panel p-5">
+    <h1 class="text-2xl font-bold">{{ artist.name }}</h1>
+
+    <div class="mt-2 flex items-center gap-3 text-sm text-neutral-400">
+      {% if artist.genre %}
+        <span class="rounded-full border border-edge px-2 py-0.5 text-xs">
+          {{ artist.genre.name }}
+        </span>
+      {% endif %}
+      <span>{{ artist.tracks.count() }} tracks in the catalog</span>
+    </div>
+
+    <a href="/digscover?artists={{ artist.name|urlencode }}"
+       class="mt-3 inline-block text-sm text-dig hover:underline">
+      Find similar tracks on DigsCover →
+    </a>
+  </header>
+
+  <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-400">
+    Digs about {{ artist.name }}
+  </h2>
+
+  {% if digs %}
+    <div class="space-y-4">
+      {% for dig in digs %}
+        {% include "components/dig_card.html" %}
+      {% endfor %}
+    </div>
+
+    {% with base_url = '/artist/' ~ artist.name %}
+      {% include "components/pagination.html" %}
+    {% endwith %}
+
+  {% else %}
+    <div class="rounded-2xl border border-edge bg-panel p-8 text-center">
+      <p class="text-sm text-neutral-400">Nobody has dug this artist yet.</p>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block modals %}
+  {% include "components/create_dig_modal.html" %}
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/digs.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/create_dig.js') }}"></script>
+{% endblock %}

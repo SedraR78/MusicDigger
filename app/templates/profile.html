@@ -28,9 +28,14 @@
         </div>
       </div>
 
-      {# Les deux boutons sont pilotés par le JS : leur état dépend du
-         visiteur, que le serveur ne connaît pas (le token est côté navigateur). #}
+      {# Les boutons sont pilotés par le JS : leur état dépend du visiteur,
+         que le serveur ne connaît pas (le token est côté navigateur). #}
       <div class="flex shrink-0 gap-2">
+        <button id="editBtn"
+                class="hidden rounded-full border border-edge px-3.5 py-1.5 text-sm
+                       text-neutral-300 hover:bg-edge hover:text-white">
+          Edit profile
+        </button>
         <button id="messageBtn" data-username="{{ profile_user.username }}"
                 class="hidden rounded-full border border-edge px-3.5 py-1.5 text-sm
                        text-neutral-300 hover:bg-edge hover:text-white">
@@ -54,6 +59,11 @@
         {% include "components/dig_card.html" %}
       {% endfor %}
     </div>
+
+    {% with base_url = '/u/' ~ profile_user.username %}
+      {% include "components/pagination.html" %}
+    {% endwith %}
+
   {% else %}
     <div class="rounded-2xl border border-edge bg-panel p-8 text-center">
       <p class="text-sm text-neutral-400">No digs yet.</p>
@@ -63,6 +73,51 @@
 
 {% block modals %}
   {% include "components/create_dig_modal.html" %}
+
+  {# Modal d'édition du profil #}
+  <div id="editModal"
+       class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4">
+    <div class="w-full max-w-sm rounded-2xl border border-edge bg-panel p-5">
+
+      <header class="mb-4 flex items-center justify-between">
+        <h2 class="font-bold">Edit profile</h2>
+        <button id="closeEdit" class="rounded px-2 text-neutral-500 hover:text-white">✕</button>
+      </header>
+
+      <div class="space-y-3">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium">Username</label>
+          <input id="editUsername" type="text" maxlength="80"
+                 value="{{ profile_user.username }}"
+                 class="w-full rounded-xl border border-edge bg-ink px-3.5 py-2.5 text-sm
+                        outline-none focus:border-neutral-600">
+        </div>
+
+        <div>
+          <label class="mb-1.5 block text-sm font-medium">Bio</label>
+          <textarea id="editBio" rows="3" maxlength="300"
+                    placeholder="What do you dig?"
+                    class="w-full resize-none rounded-xl border border-edge bg-ink
+                           px-3.5 py-2.5 text-sm placeholder-neutral-500 outline-none
+                           focus:border-neutral-600">{{ profile_user.bio or '' }}</textarea>
+        </div>
+      </div>
+
+      <button id="saveProfile"
+              class="mt-4 w-full rounded-xl bg-dig px-4 py-2.5 text-sm font-semibold
+                     text-white transition hover:brightness-110">
+        Save
+      </button>
+
+      {# Suppression de compte : opération irréversible, isolée visuellement #}
+      <div class="mt-5 border-t border-edge pt-4">
+        <button id="deleteAccount"
+                class="text-xs text-neutral-500 hover:text-red-400">
+          Delete my account
+        </button>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 
 {% block scripts %}

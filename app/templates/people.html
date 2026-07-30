@@ -7,22 +7,40 @@
     <p class="mt-1 text-sm text-neutral-400">Curators on MusicDigger.</p>
   </div>
 
-  <div class="grid gap-3 sm:grid-cols-2">
-    {% for user in users %}
-      <a href="/u/{{ user.username }}"
-         class="flex items-center gap-3 rounded-2xl border border-edge bg-panel p-3.5
-                transition hover:border-neutral-700">
-        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full
-                     border border-edge bg-ink font-medium">
-          {{ user.display_name[0]|upper }}
-        </span>
-        <span class="min-w-0 flex-1">
-          <span class="block truncate font-semibold">{{ user.display_name }}</span>
-          <span class="block truncate text-xs text-neutral-500">
-            {{ user.digs.count() }} digs · {{ user.followers.count() }} followers
+  {% if users %}
+    <div class="grid gap-3 sm:grid-cols-2">
+      {% for user in users %}
+        <a href="/u/{{ user.username }}"
+           class="flex items-start gap-3 rounded-2xl border border-edge bg-panel p-3.5
+                  transition hover:border-neutral-700">
+
+          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full
+                       border border-edge bg-ink font-medium">
+            {{ user.display_name[0]|upper }}
           </span>
-        </span>
-      </a>
-    {% endfor %}
-  </div>
+
+          <span class="min-w-0 flex-1">
+            <span class="block truncate font-semibold">{{ user.display_name }}</span>
+            <span class="block truncate text-xs text-neutral-500">
+              {{ user.digs.count() }} digs · {{ user.followers.count() }} followers
+            </span>
+            {% if user.bio %}
+              <span class="mt-1 block truncate text-xs text-neutral-400">
+                {{ user.bio }}
+              </span>
+            {% endif %}
+          </span>
+        </a>
+      {% endfor %}
+    </div>
+
+    {% with base_url = '/people' %}
+      {% include "components/pagination.html" %}
+    {% endwith %}
+
+  {% else %}
+    <div class="rounded-2xl border border-edge bg-panel p-8 text-center">
+      <p class="text-sm text-neutral-400">No diggers yet.</p>
+    </div>
+  {% endif %}
 {% endblock %}
