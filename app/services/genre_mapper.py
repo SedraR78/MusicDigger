@@ -1,13 +1,12 @@
-"""Réduit les genres granulaires de Spotify à une liste canonique.
+"""Liste canonique des genres + réduction des genres granulaires.
 
-Spotify renvoie "melodic drill", "cali rap", "escape room" — utilisable pour
-un algorithme, illisible pour des tags cliquables. On mappe donc sur une liste
-courte qui correspond aux tags de vibe des wireframes DigsCover.
+Utilisée pour : les tags cliquables de DigsCover, le seed de la table Genre,
+et le mapping des libellés externes s'ils reviennent un jour.
 
-⚠️ L'ORDRE COMPTE : le premier mot-clé trouvé gagne.
-   "reggaeton" contient "reggae"  → Reggaeton avant Reggae
-   "hyperpop" contient "pop"      → Hyperpop avant Pop
-   "melodic drill" contient "drill" → Drill avant Hip-Hop
+⚠️ L'ORDRE COMPTE dans GENRE_MAP : le premier mot-clé trouvé gagne.
+   "reggaeton" contient "reggae"     → Reggaeton avant Reggae
+   "hyperpop" contient "pop"         → Hyperpop avant Pop
+   "melodic drill" contient "drill"  → Drill avant Hip-Hop
 """
 
 GENRE_MAP = [
@@ -61,22 +60,22 @@ GENRE_MAP = [
     ('Classique',   ['classical', 'baroque', 'opera', 'orchestra']),
     ('Soundtrack',  ['soundtrack', 'score', 'anime', 'video game']),
 
-    ('Pop',         ['pop']),   # en dernier : attrape tout ce qui reste
+    ('Pop',         ['pop']),   # en dernier : attrape le reste
 ]
 
 CANONICAL_GENRES = [name for name, _ in GENRE_MAP] + ['Other']
 
-# Les tags affichés en dur sur DigsCover ; le reste derrière le bouton "..."
-FEATURED_GENRES = ['Hip-Hop', 'R&B', 'Drill', 'Trap', 'Boom Bap', 'Afrobeats',
-                   'Jazz', 'Soul', 'Indie', 'Electro', 'Pop', 'Reggae']
+# Tags affichés en dur sur DigsCover, le reste derrière le bouton "..."
+FEATURED_GENRES = ['Hip-Hop', 'Drill', 'Boom Bap', 'Trap', 'R&B', 'Soul',
+                   'Afrobeats', 'Grime', 'Jazz', 'Indie', 'Electro', 'Pop']
 
 
-def map_genre(spotify_genres):
+def map_genre(raw_genres):
     """['melodic drill', 'uk rap'] → 'Drill'"""
-    if not spotify_genres:
+    if not raw_genres:
         return 'Other'
 
-    for raw in spotify_genres:
+    for raw in raw_genres:
         raw = raw.lower()
         for canonical, keywords in GENRE_MAP:
             if any(keyword in raw for keyword in keywords):

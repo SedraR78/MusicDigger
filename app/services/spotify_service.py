@@ -1,19 +1,20 @@
 """Accès au catalogue Spotify. Source primaire des métadonnées.
 
-Rôle clé : NORMALISER. Le reste de l'application ne voit jamais le format
-brut de Spotify — d'où la méthode _normalize. C'est ce qui rend Spotify et
-YouTube interchangeables pour DigService.
+Rôle clé : NORMALISER. Le reste de l'application ne voit jamais le format brut
+de Spotify — c'est ce qui rend Spotify et YouTube interchangeables pour
+DigService.
 
 Authentification : Client Credentials. L'application s'authentifie avec ses
-propres clés, aucun utilisateur ne se connecte à Spotify — on n'accède qu'au
-catalogue public, jamais à des données personnelles.
+propres clés, aucun utilisateur ne se connecte à Spotify. On n'accède qu'au
+catalogue public.
+
+⚠️ Note : l'API ne renvoie plus les genres sur l'objet artiste. Le genre est
+donc résolu ailleurs (voir artist_genres.py).
 """
 
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from flask import current_app
-
-from app.services.genre_mapper import map_genre
 
 
 class SpotifyService:
@@ -30,11 +31,12 @@ class SpotifyService:
                 current_app.logger.warning('Spotify credentials missing')
                 return None
 
-            credentials = SpotifyClientCredentials(
-                client_id=client_id,
-                client_secret=client_secret,
+            cls._client = spotipy.Spotify(
+                client_credentials_manager=SpotifyClientCredentials(
+                    client_id=client_id,
+                    client_secret=client_secret,
+                )
             )
-            cls._client = spotipy.Spotify(client_credentials_manager=credentials)
         return cls._client
 
     @classmethod
@@ -42,8 +44,7 @@ class SpotifyService:
         """Cherche des morceaux. Retourne une liste normalisée, ou [].
 
         Ne lève JAMAIS d'exception : si Spotify est indisponible, on renvoie
-        une liste vide et l'appelant bascule sur YouTube. C'est le cœur de
-        la stratégie de repli.
+        une liste vide et l'appelant bascule sur YouTube.
         """
         try:
             client = cls.get_client()
@@ -58,30 +59,27 @@ class SpotifyService:
             return []
 
     @classmethod
-    def get_artist_genre(cls, spotify_artist_id):
-        """Le genre d'un artiste, mappé sur notre liste canonique.
+    def get_track(cls, spotify_id):
+        """Récupère un morceau par son identifiant.
 
-        ⚠️ Spotify n'expose les genres que sur l'ARTISTE, jamais sur le
-        morceau. C'est pourquoi il faut un appel supplémentaire — fait
-        une seule fois par artiste, puis mis en cache en base.
+        Utilisée à la création d'un DIG : le client n'envoie qu'un id, le
+        serveur va chercher les métadonnées lui-même.
         """
         try:
             client = cls.get_client()
-            if client is None or not spotify_artist_id:
-                return 'Other'
-
-            artist = client.artist(spotify_artist_id)
-            return map_genre(artist.get('genres', []))
+            if client is None:
+                return None
+            return cls._normalize(client.track(spotify_id))
         except Exception as exc:
-            current_app.logger.warning(f'Spotify get_artist_genre failed: {exc}')
-            return 'Other'
+            current_app.logger.warning(f'Spotify get_track failed: {exc}')
+            return None
 
     @staticmethod
     def _normalize(item):
         """Traduit une réponse Spotify vers NOTRE format interne.
 
         Les .get() partout : les APIs externes renvoient parfois des champs
-        manquants. item['album']['images'][0] planterait ; le .get() protège.
+        manquants. item['album']['images'][0] planterait.
         """
         album = item.get('album') or {}
         images = album.get('images') or []
@@ -93,7 +91,7 @@ class SpotifyService:
             'external_id': track_id,
             'title': item.get('name'),
             'artist_name': artists[0].get('name'),
-            'artist_external_id': artists[0].get('id'),   # pour le genre
+            'artist_external_id': artists[0].get('id'),
             'album_title': album.get('name'),
             'album_external_id': album.get('id'),
             'album_year': (album.get('release_date') or '')[:4] or None,
