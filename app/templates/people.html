@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}People — MusicDigger{% endblock %}
+
+{% block content %}
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold">People</h1>
+    <p class="mt-1 text-sm text-neutral-400">Curators on MusicDigger.</p>
+  </div>
+
+  <div class="grid gap-3 sm:grid-cols-2">
+    {% for user in users %}
+      <a href="/u/{{ user.username }}"
+         class="flex items-center gap-3 rounded-2xl border border-edge bg-panel p-3.5
+                transition hover:border-neutral-700">
+        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full
+                     border border-edge bg-ink font-medium">
+          {{ user.display_name[0]|upper }}
+        </span>
+        <span class="min-w-0 flex-1">
+          <span class="block truncate font-semibold">{{ user.display_name }}</span>
+          <span class="block truncate text-xs text-neutral-500">
+            {{ user.digs.count() }} digs · {{ user.followers.count() }} followers
+          </span>
+        </span>
+      </a>
+    {% endfor %}
+  </div>
+{% endblock %}

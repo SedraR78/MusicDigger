@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Following — MusicDigger{% endblock %}
+
+{% block content %}
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold">Following</h1>
+    <p class="mt-1 text-sm text-neutral-400">
+      Digs from the curators you follow.
+    </p>
+  </div>
+
+  <div id="feedList" class="space-y-4">
+    <p class="text-sm text-neutral-500">Loading…</p>
+  </div>
+{% endblock %}
+
+{% block modals %}
+  {% include "components/create_dig_modal.html" %}
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/digs.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/create_dig.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feed.js') }}"></script>
+{% endblock %}

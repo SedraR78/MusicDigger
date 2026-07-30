@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ profile_user.display_name }} — MusicDigger{% endblock %}
+
+{% block content %}
+
+  {# ---------- En-tête du profil ---------- #}
+  <header class="mb-6 rounded-2xl border border-edge bg-panel p-5">
+    <div class="flex items-start gap-4">
+
+      <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full
+                  border border-edge bg-ink text-xl font-bold">
+        {{ profile_user.display_name[0]|upper }}
+      </div>
+
+      <div class="min-w-0 flex-1">
+        <h1 class="truncate text-xl font-bold">{{ profile_user.display_name }}</h1>
+        {% if profile_user.bio %}
+          <p class="mt-1 text-sm text-neutral-400">{{ profile_user.bio }}</p>
+        {% endif %}
+
+        <div class="mt-3 flex gap-5 text-sm">
+          <span><b>{{ profile_user.digs.count() }}</b>
+                <span class="text-neutral-500">Digs</span></span>
+          <span><b id="followersCount">{{ profile_user.followers.count() }}</b>
+                <span class="text-neutral-500">Followers</span></span>
+          <span><b>{{ profile_user.following.count() }}</b>
+                <span class="text-neutral-500">Following</span></span>
+        </div>
+      </div>
+
+      {# Les deux boutons sont pilotés par le JS : leur état dépend du
+         visiteur, que le serveur ne connaît pas (le token est côté navigateur). #}
+      <div class="flex shrink-0 gap-2">
+        <button id="messageBtn" data-username="{{ profile_user.username }}"
+                class="hidden rounded-full border border-edge px-3.5 py-1.5 text-sm
+                       text-neutral-300 hover:bg-edge hover:text-white">
+          💬 Message
+        </button>
+        <button id="followBtn" data-username="{{ profile_user.username }}"
+                class="hidden rounded-full px-4 py-1.5 text-sm font-medium">
+        </button>
+      </div>
+    </div>
+  </header>
+
+  {# ---------- Ses DIGs ---------- #}
+  <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-400">
+    Digs
+  </h2>
+
+  {% if digs %}
+    <div class="space-y-4">
+      {% for dig in digs %}
+        {% include "components/dig_card.html" %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="rounded-2xl border border-edge bg-panel p-8 text-center">
+      <p class="text-sm text-neutral-400">No digs yet.</p>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block modals %}
+  {% include "components/create_dig_modal.html" %}
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/digs.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/create_dig.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+{% endblock %}

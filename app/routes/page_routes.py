@@ -55,3 +55,34 @@ def login():
 @pages_bp.route('/register')
 def register():
     return render_template('auth/register.html', active='')
+
+
+@pages_bp.route('/digscover')
+def digscover():
+    """Page DigsCover. Publique : un visiteur peut explorer par critères.
+
+    Le contenu est chargé en fetch après l'affichage, parce qu'il dépend de
+    l'état de connexion — que Jinja2 ne connaît pas (le token est côté
+    navigateur, dans localStorage).
+    """
+    return render_template('digscover.html',
+                           active='digscover',
+                           featured_genres=FEATURED_GENRES,
+                           all_genres=CANONICAL_GENRES)
+@pages_bp.route('/feed')
+def feed():
+    """Le feed des personnes suivies. Le contenu est chargé en fetch parce
+    qu'il dépend du token, que Jinja2 ne connaît pas."""
+    return render_template('feed.html', active='feed')
+
+
+@pages_bp.route('/messages')
+def messages():
+    return render_template('messages.html', active='messages')
+
+
+@pages_bp.route('/people')
+def people():
+    """Annuaire simple : tous les utilisateurs actifs."""
+    users = User.query.filter(User.is_deleted.is_(False)).limit(50).all()
+    return render_template('people.html', users=users, active='people')

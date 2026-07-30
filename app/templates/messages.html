@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Messages — MusicDigger{% endblock %}
+
+{% block content %}
+  <div class="mb-4">
+    <h1 class="text-2xl font-bold">Messages</h1>
+  </div>
+
+  {# Layout deux colonnes : conversations à gauche, chat à droite #}
+  <div class="grid gap-4 lg:grid-cols-[280px_1fr]">
+
+    {# ---------- Liste des conversations ---------- #}
+    <aside class="rounded-2xl border border-edge bg-panel p-2">
+      <div id="conversationList" class="space-y-1">
+        <p class="px-3 py-2 text-sm text-neutral-500">Loading…</p>
+      </div>
+
+      {# Recherche d'utilisateur : on suggère au lieu de demander à l'aveugle #}
+      <div class="relative mt-2">
+        <input id="newConvSearch" type="text" autocomplete="off"
+               placeholder="+ Message someone…"
+               class="w-full rounded-xl border border-edge bg-ink px-3 py-2 text-sm
+                      placeholder-neutral-500 outline-none focus:border-neutral-600">
+        <div id="newConvSuggestions"
+             class="absolute inset-x-0 bottom-full z-20 mb-1 hidden max-h-64
+                    overflow-y-auto rounded-xl border border-edge bg-panel shadow-2xl"></div>
+      </div>
+    </aside>
+
+    {# ---------- Fenêtre de chat ---------- #}
+    <section class="flex min-h-[500px] flex-col rounded-2xl border border-edge bg-panel">
+
+      <header id="chatHeader"
+              class="hidden items-center gap-2.5 border-b border-edge px-4 py-3">
+        <span id="chatAvatar"
+              class="flex h-8 w-8 items-center justify-center rounded-full
+                     border border-edge bg-ink text-sm font-medium"></span>
+        <span id="chatUsername" class="font-semibold"></span>
+      </header>
+
+      <div id="chatMessages" class="flex-1 space-y-3 overflow-y-auto p-4">
+        <p class="mt-20 text-center text-sm text-neutral-500">
+          Select a conversation to start
+        </p>
+      </div>
+
+      <footer id="chatInput" class="hidden gap-2 border-t border-edge p-3">
+        <input id="messageText" type="text" placeholder="Type a message…"
+               class="flex-1 rounded-xl border border-edge bg-ink px-3.5 py-2.5 text-sm
+                      placeholder-neutral-500 outline-none focus:border-neutral-600">
+        <button id="sendMessage"
+                class="rounded-xl bg-dig px-4 py-2.5 text-sm font-semibold text-white
+                       transition hover:brightness-110 disabled:bg-neutral-800
+                       disabled:text-neutral-500" disabled>
+          Send
+        </button>
+      </footer>
+    </section>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/messages.js') }}"></script>
+{% endblock %}

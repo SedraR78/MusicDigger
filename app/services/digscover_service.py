@@ -30,23 +30,32 @@ class DigsCoverService:
 
     @staticmethod
     def by_criteria(artists=None, songs=None, genres=None, limit=20):
-        """Aucun compte : on ne travaille que sur les critères saisis."""
+        """Aucun compte : on ne travaille que sur les critères saisis.
+
+        Les critères servent à trouver des morceaux VOISINS, pas à retourner
+        ce que l'utilisateur a déjà nommé — on ne découvre pas ce qu'on connaît.
+        """
         query = Track.query
         filters = []
 
         if artists:
             names = [a.strip() for a in artists.split(',') if a.strip()]
-            if names:
-                ids = [a.id for a in Artist.query.filter(Artist.name.in_(names)).all()]
-                if ids:
-                    filters.append(Track.artist_id.in_(ids))
+            artist_ids = []
+            for name in names:
+                # ilike : insensible à la casse, "giggs" trouve "Giggs"
+                artist_ids.extend(a.id for a in
+                                  Artist.query.filter(Artist.name.ilike(name)).all())
+            if artist_ids:
+                filters.append(Track.artist_id.in_(artist_ids))
 
         if genres:
             names = [g.strip() for g in genres.split(',') if g.strip()]
-            if names:
-                ids = [g.id for g in Genre.query.filter(Genre.name.in_(names)).all()]
-                if ids:
-                    filters.append(Track.genre_id.in_(ids))
+            genre_ids = []
+            for name in names:
+                genre_ids.extend(g.id for g in
+                                 Genre.query.filter(Genre.name.ilike(name)).all())
+            if genre_ids:
+                filters.append(Track.genre_id.in_(genre_ids))
 
         if songs:
             for title in [s.strip() for s in songs.split(',') if s.strip()]:
@@ -55,10 +64,20 @@ class DigsCoverService:
         if filters:
             query = query.filter(db.or_(*filters))
 
-        tracks = query.limit(limit * 3).all()
-        random.shuffle(tracks)
-        return [(t, DigsCoverService._criteria_label(t)) for t in tracks[:limit]]
+        matched = query.limit(limit * 3).all()
 
+        # Les morceaux explicitement nommés sont EXCLUS des résultats :
+        # l'utilisateur les connaît déjà, ce n'est pas de la découverte.
+        # Leurs artistes et genres restent utilisés comme signal.
+        excluded = set()
+        if songs:
+            excluded = {s.strip().lower() for s in songs.split(',') if s.strip()}
+
+        results = [t for t in matched
+                   if not (t.title and t.title.lower() in excluded)]
+
+        random.shuffle(results)
+        return [(t, DigsCoverService._criteria_label(t)) for t in results[:limit]]
     # ==================== Chemin connecté ====================
 
     @staticmethod

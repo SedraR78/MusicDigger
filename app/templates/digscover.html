@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}DigsCover — MusicDigger{% endblock %}
+
+{% block content %}
+  <div class="mb-6 flex items-start justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold">DigsCover</h1>
+      <p class="mt-1 text-sm text-neutral-400" id="digscoverSubtitle">
+        Find tracks nobody has dug yet.
+      </p>
+    </div>
+    <button id="randomDig"
+            class="shrink-0 rounded-full border border-edge px-3.5 py-1.5 text-sm
+                   text-neutral-300 hover:bg-panel hover:text-white">
+      🎲 Random DIG
+    </button>
+  </div>
+
+  {# ---------- Panneau de critères ---------- #}
+  <div class="mb-6 rounded-2xl border border-edge bg-panel p-4">
+    <p class="mb-3 text-sm font-medium">Find tracks by what you like</p>
+
+    <div class="grid gap-3 sm:grid-cols-2">
+
+      {# ---- Artistes : suggestions + chips ---- #}
+      <div>
+        <label class="mb-1 block text-xs text-neutral-400">Artists you like…</label>
+
+        {# Les artistes choisis s'affichent ici, en chips supprimables #}
+        <div id="artistChips" class="mb-1.5 hidden flex-wrap gap-1.5"></div>
+
+        <div class="relative">
+          <input id="criteriaArtists" type="text" autocomplete="off"
+                 placeholder="Type an artist name…"
+                 class="w-full rounded-xl border border-edge bg-ink px-3 py-2 text-sm
+                        placeholder-neutral-600 outline-none focus:border-neutral-600">
+          <div id="artistSuggestions"
+               class="absolute inset-x-0 top-full z-20 mt-1 hidden overflow-hidden
+                      rounded-xl border border-edge bg-panel shadow-2xl"></div>
+        </div>
+      </div>
+
+      {# ---- Morceaux : suggestions + chips ---- #}
+      <div>
+        <label class="mb-1 block text-xs text-neutral-400">Songs you like…</label>
+
+        <div id="songChips" class="mb-1.5 hidden flex-wrap gap-1.5"></div>
+
+        <div class="relative">
+          <input id="criteriaSongs" type="text" autocomplete="off"
+                 placeholder="Type a song title…"
+                 class="w-full rounded-xl border border-edge bg-ink px-3 py-2 text-sm
+                        placeholder-neutral-600 outline-none focus:border-neutral-600">
+          <div id="songSuggestions"
+               class="absolute inset-x-0 top-full z-20 mt-1 hidden overflow-hidden
+                      rounded-xl border border-edge bg-panel shadow-2xl"></div>
+        </div>
+      </div>
+    </div>
+
+    {# Tags de genre cliquables #}
+    <div class="mt-3">
+      <label class="mb-1.5 block text-xs text-neutral-400">Genres (pick some)</label>
+      <div class="flex flex-wrap gap-1.5" id="genreTags">
+        {% for genre in featured_genres %}
+          <button data-genre="{{ genre }}"
+                  class="rounded-full border border-edge px-2.5 py-1 text-xs
+                         text-neutral-400 transition hover:border-neutral-600">
+            {{ genre }}
+          </button>
+        {% endfor %}
+        <button id="showAllGenres"
+                class="rounded-full border border-edge px-2.5 py-1 text-xs text-neutral-500">
+          …
+        </button>
+      </div>
+
+      {# Les genres de niche, cachés derrière le bouton … #}
+      <div id="allGenres" class="mt-1.5 hidden flex-wrap gap-1.5">
+        {% for genre in all_genres %}
+          {% if genre not in featured_genres %}
+            <button data-genre="{{ genre }}"
+                    class="rounded-full border border-edge px-2.5 py-1 text-xs
+                           text-neutral-400 transition hover:border-neutral-600">
+              {{ genre }}
+            </button>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <button id="startDigging"
+            class="mt-4 w-full rounded-xl bg-dig px-4 py-2.5 text-sm font-semibold
+                   text-white transition hover:brightness-110 sm:w-auto sm:px-6">
+      ⛏ Start digging
+    </button>
+  </div>
+
+  {# ---------- Les résultats ---------- #}
+  <div class="mb-3 flex items-center justify-between">
+    <h2 id="resultsTitle" class="text-sm font-semibold uppercase
+                                  tracking-wide text-neutral-400"></h2>
+    <span id="resultsHint" class="text-xs text-neutral-500"></span>
+  </div>
+
+  <div id="trackGrid" class="grid gap-3 sm:grid-cols-2">
+    <p class="text-sm text-neutral-500">Loading…</p>
+  </div>
+
+  {# Bandeau de conversion, pour les visiteurs #}
+  <div id="signupBanner"
+       class="mt-6 hidden items-center justify-between gap-4 rounded-2xl border
+              border-edge bg-panel px-4 py-3">
+    <p class="text-sm text-neutral-300">
+      Create an account to get personalized recommendations.
+    </p>
+    <a href="/register"
+       class="shrink-0 rounded-full bg-neutral-100 px-4 py-1.5 text-sm
+              font-medium text-ink hover:bg-white">Sign up</a>
+  </div>
+{% endblock %}
+
+{% block modals %}
+  {% include "components/create_dig_modal.html" %}
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/create_dig.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/digscover.js') }}"></script>
+{% endblock %}

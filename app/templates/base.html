@@ -116,6 +116,7 @@
       #}
       {% set nav_items = [
         ('trending',  '/trending',  'Trending'),
+        ('feed',      '/feed',      'Following'),
         ('digscover', '/digscover', 'DigsCover'),
         ('people',    '/people',    'People'),
         ('messages',  '/messages',  'Messages'),
@@ -154,11 +155,11 @@
        NAVIGATION MOBILE
        ============================================================ -->
   <nav class="fixed bottom-0 inset-x-0 z-40 flex items-center border-t border-edge bg-ink lg:hidden">
-    {% for key, url, label in [
+  {% for key, url, label in [
       ('trending',  '/trending',  'Trends'),
+      ('feed',      '/feed',      'Feed'),
       ('digscover', '/digscover', 'DigsCover'),
-      ('messages',  '/messages',  'Msg'),
-      ('me',        '/me',        'Me')
+      ('messages',  '/messages',  'Msg')
     ] %}
       <a href="{{ url }}"
          class="flex-1 py-3 text-center text-xs
