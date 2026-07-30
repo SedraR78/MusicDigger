@@ -79,11 +79,26 @@
                     hover:bg-white">Sign up</a>
         </div>
 
-        <a id="userAvatar" href="/me" class="hidden">
-          <span class="flex h-9 w-9 items-center justify-center rounded-full
-                       border border-edge bg-panel text-sm font-medium"
-                id="avatarInitial">?</span>
-        </a>
+ <div id="userMenu" class="relative hidden">
+          <button id="avatarBtn"
+                  class="flex h-9 w-9 items-center justify-center rounded-full
+                         border border-edge bg-panel text-sm font-medium
+                         hover:border-neutral-600">
+            <span id="avatarInitial">?</span>
+          </button>
+
+          <div id="avatarDropdown"
+               class="absolute right-0 top-full mt-2 hidden w-44 overflow-hidden
+                      rounded-xl border border-edge bg-panel shadow-2xl">
+            <a id="myProfileLink" href="#"
+               class="block px-4 py-2.5 text-sm hover:bg-edge">My profile</a>
+            <a href="/messages" class="block px-4 py-2.5 text-sm hover:bg-edge">Messages</a>
+            <button id="logoutBtn"
+                    class="block w-full px-4 py-2.5 text-left text-sm text-red-400 hover:bg-edge">
+              Log out
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </header>
@@ -138,12 +153,12 @@
   <!-- ============================================================
        NAVIGATION MOBILE
        ============================================================ -->
-  <nav class="fixed bottom-0 inset-x-0 z-40 flex border-t border-edge bg-ink lg:hidden">
+  <nav class="fixed bottom-0 inset-x-0 z-40 flex items-center border-t border-edge bg-ink lg:hidden">
     {% for key, url, label in [
-      ('trending', '/trending', 'Trends'),
-      ('digscover', '/digscover', 'Dig'),
-      ('messages', '/messages', 'Msg'),
-      ('me', '/me', 'Me')
+      ('trending',  '/trending',  'Trends'),
+      ('digscover', '/digscover', 'DigsCover'),
+      ('messages',  '/messages',  'Msg'),
+      ('me',        '/me',        'Me')
     ] %}
       <a href="{{ url }}"
          class="flex-1 py-3 text-center text-xs
@@ -151,6 +166,12 @@
         {{ label }}
       </a>
     {% endfor %}
+
+    {# Le bouton principal doit rester accessible en mobile #}
+    <button id="openCreateDigMobile"
+            class="mr-2 rounded-full bg-dig px-4 py-2 text-sm font-semibold text-white">
+      ⛏
+    </button>
   </nav>
 
   <!-- ============================================================

@@ -1,0 +1,95 @@
+{#
+  Modal de création d'un DIG. Trois étapes :
+    1. l'utilisateur cherche un son (fetch vers /api/digs/search)
+    2. il clique sur un résultat, la preview se remplit
+    3. il écrit son avis (obligatoire) et poste
+
+  Le badge Spotify / YouTube rend le fallback VISIBLE : c'est ce qui permet
+  de le démontrer en direct.
+#}
+<div id="createDigModal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4">
+
+  <div class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl
+              border border-edge bg-panel p-5">
+
+    <!-- En-tête -->
+    <header class="mb-5 flex items-center justify-between">
+      <h2 class="text-lg font-bold">Create a DIG</h2>
+      <button id="closeCreateDig"
+              class="rounded-lg px-2 py-1 text-neutral-500 hover:bg-edge hover:text-white">✕</button>
+    </header>
+
+    <!-- ÉTAPE 1 : chercher un son -->
+    <div class="mb-4">
+      <label class="mb-1.5 block text-sm font-medium">1. Find a song</label>
+      <input id="trackSearch" type="text" autocomplete="off"
+             placeholder="Search a song or paste a Spotify/YouTube link..."
+             class="w-full rounded-xl border border-edge bg-ink px-3.5 py-2.5 text-sm
+                    placeholder-neutral-500 outline-none focus:border-neutral-600">
+
+      <!-- Les résultats, remplis par le JS -->
+      <div id="trackResults" class="mt-2 hidden space-y-1 rounded-xl border border-edge bg-ink p-1"></div>
+    </div>
+
+    <!-- La preview du son sélectionné -->
+    <div id="trackPreview"
+         class="mb-4 hidden rounded-xl border border-edge bg-ink p-3">
+      <div class="flex gap-3">
+        <img id="previewCover" src="" alt=""
+             class="h-16 w-16 shrink-0 rounded-lg object-cover">
+        <div class="min-w-0 flex-1">
+          <p id="previewTitle" class="truncate font-semibold"></p>
+          <p id="previewArtist" class="truncate text-sm text-neutral-400"></p>
+          <p id="previewAlbum" class="truncate text-xs text-neutral-500"></p>
+          <!-- LE badge : montre d'où vient le son -->
+          <span id="previewSource"
+                class="mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium"></span>
+        </div>
+        <button id="clearTrack"
+                class="shrink-0 self-start rounded px-1.5 text-neutral-500 hover:text-white">✕</button>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 2 : le genre (optionnel) -->
+    <div id="genreStep" class="mb-4 hidden">
+      <label class="mb-1.5 block text-sm font-medium">
+        2. Genre <span class="text-neutral-500">(optional)</span>
+      </label>
+      <select id="digGenre"
+              class="w-full rounded-xl border border-edge bg-ink px-3.5 py-2.5 text-sm outline-none">
+        <option value="">Let the community decide</option>
+        {% for genre in genres %}
+          <option value="{{ genre }}">{{ genre }}</option>
+        {% endfor %}
+      </select>
+      <p class="mt-1 text-xs text-neutral-500">
+        Spotify no longer exposes genres. The first digger tags the track.
+      </p>
+    </div>
+
+    <!-- ÉTAPE 3 : l'avis, obligatoire -->
+    <div class="mb-5">
+      <label class="mb-1.5 block text-sm font-medium">
+        3. Your opinion <span class="text-dig">*</span>
+      </label>
+      <textarea id="digContent" rows="4" maxlength="1000"
+                placeholder="Why does this track matter? Don't just drop a link."
+                class="w-full resize-none rounded-xl border border-edge bg-ink px-3.5 py-2.5
+                       text-sm placeholder-neutral-500 outline-none focus:border-neutral-600"></textarea>
+      <div class="mt-1 flex justify-between text-xs text-neutral-500">
+        <span>Required — that's the whole point.</span>
+        <span id="charCount">0/1000</span>
+      </div>
+    </div>
+
+    <!-- Le bouton, désactivé jusqu'à ce que tout soit rempli -->
+    <button id="submitDig" disabled
+            class="flex w-full items-center justify-center gap-2 rounded-xl bg-dig
+                   px-4 py-3 text-sm font-semibold text-white transition
+                   hover:brightness-110 disabled:cursor-not-allowed
+                   disabled:bg-neutral-800 disabled:text-neutral-500">
+      <span>⛏</span> <span id="submitLabel">Post your DIG</span>
+    </button>
+  </div>
+</div>

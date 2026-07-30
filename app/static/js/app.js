@@ -7,30 +7,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 /*
- * Bascule entre "Login / Sign up" et l'avatar, selon la présence du token.
+ * Bascule entre "Login / Sign up" et le menu utilisateur.
  *
  * Note : les pages sont rendues par Jinja2 côté serveur, qui ne connaît PAS
  * le token (il est dans localStorage, côté navigateur). C'est donc le JS qui
  * ajuste la navbar après le chargement.
  */
 function renderAuthZone() {
-  const buttons = document.getElementById('authButtons');
-  const avatar  = document.getElementById('userAvatar');
-  const initial = document.getElementById('avatarInitial');
-  const createBtn = document.getElementById('openCreateDig');
+  const buttons     = document.getElementById('authButtons');
+  const menu        = document.getElementById('userMenu');
+  const avatarBtn   = document.getElementById('avatarBtn');
+  const dropdown    = document.getElementById('avatarDropdown');
+  const initial     = document.getElementById('avatarInitial');
+  const logoutBtn   = document.getElementById('logoutBtn');
+  const profileLink = document.getElementById('myProfileLink');
 
   if (Auth.isLoggedIn) {
-    avatar?.classList.remove('hidden');
+    // On retire flex ET sm:flex : une variante responsive de Tailwind
+    // l'emporte sur hidden, donc l'ajouter seul ne suffit pas.
+    buttons?.classList.remove('flex', 'sm:flex');
     buttons?.classList.add('hidden');
+    menu?.classList.remove('hidden');
+
     if (initial && Auth.user) {
       initial.textContent = Auth.user.username.charAt(0).toUpperCase();
     }
+    if (profileLink && Auth.user) {
+      profileLink.href = `/u/${encodeURIComponent(Auth.user.username)}`;
+    }
+
+    // Menu déroulant : stopPropagation évite que le clic remonte au document
+    // et referme immédiatement ce qu'on vient d'ouvrir.
+    avatarBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown?.classList.toggle('hidden');
+    });
+    document.addEventListener('click', () => dropdown?.classList.add('hidden'));
+
+    logoutBtn?.addEventListener('click', () => {
+      // Déconnexion = effacer le token local. Le JWT reste techniquement
+      // valide jusqu'à son expiration (on ne peut pas le révoquer), d'où
+      // sa durée de vie courte d'une heure.
+      Auth.clear();
+      window.location.href = '/trending';
+    });
+
   } else {
     buttons?.classList.remove('hidden');
     buttons?.classList.add('flex');
-    avatar?.classList.add('hidden');
-    // Un visiteur ne peut pas poster : le bouton renvoie au login
-    createBtn?.addEventListener('click', () => (window.location.href = '/login'));
+    menu?.classList.add('hidden');
   }
 }
 
@@ -89,11 +114,13 @@ function wireGlobalSearch() {
   });
 }
 
+
 function suggestionUrl(s) {
   if (s.type === 'user')  return `/u/${encodeURIComponent(s.label)}`;
   if (s.type === 'track') return `/digscover?songs=${encodeURIComponent(s.label)}`;
   return `/digscover?artists=${encodeURIComponent(s.label)}`;
 }
+
 
 /*
  * Échappement HTML : indispensable dès qu'on injecte du contenu utilisateur

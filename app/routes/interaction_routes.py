@@ -119,7 +119,6 @@ def create_comment(dig_id):
 @interaction_bp.route('/comments/<comment_id>', methods=['DELETE'])
 @jwt_required()
 def delete_comment(comment_id):
-    """DELETE /api/digs/comments/<id> — seulement ses propres commentaires."""
     comment = db.session.get(Comment, comment_id)
     if comment is None:
         return error('Comment not found', 404)
@@ -133,4 +132,8 @@ def delete_comment(comment_id):
         dig.comments_count = max(0, dig.comments_count - 1)
     db.session.commit()
 
-    return jsonify({'message': 'Comment deleted'}), 200
+    # ← LA modification : on renvoie le nouveau compteur au front
+    return jsonify({
+        'message': 'Comment deleted',
+        'comments_count': dig.comments_count if dig else 0,
+    }), 200

@@ -35,6 +35,11 @@
   {% endif %}
 {% endblock %}
 
+{% block modals %}
+  {% include "components/create_dig_modal.html" %}
+{% endblock %}
+
 {% block scripts %}
   <script src="{{ url_for('static', filename='js/digs.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/create_dig.js') }}"></script>
 {% endblock %}

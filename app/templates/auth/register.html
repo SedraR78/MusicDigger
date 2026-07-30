@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Sign up — MusicDigger{% endblock %}
+
+{% block content %}
+  <div class="mx-auto max-w-sm pt-8">
+
+    <div class="mb-8 text-center">
+      <p class="text-4xl">⛏</p>
+      <h1 class="mt-3 text-2xl font-bold">Start digging</h1>
+      <p class="mt-1 text-sm text-neutral-400">
+        Share songs with your take on them.
+      </p>
+    </div>
+
+    <div class="space-y-3">
+      <div>
+        <label class="mb-1.5 block text-sm font-medium">Username</label>
+        <input id="username" type="text" autocomplete="username" maxlength="80"
+               class="w-full rounded-xl border border-edge bg-panel px-3.5 py-2.5 text-sm
+                      placeholder-neutral-500 outline-none focus:border-neutral-600"
+               placeholder="yourname">
+        <p id="usernameHint" class="mt-1 text-xs text-neutral-500">
+          At least 3 characters.
+        </p>
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-medium">Email</label>
+        <input id="email" type="email" autocomplete="email"
+               class="w-full rounded-xl border border-edge bg-panel px-3.5 py-2.5 text-sm
+                      placeholder-neutral-500 outline-none focus:border-neutral-600"
+               placeholder="you@example.com">
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-medium">Password</label>
+        <input id="password" type="password" autocomplete="new-password"
+               class="w-full rounded-xl border border-edge bg-panel px-3.5 py-2.5 text-sm
+                      placeholder-neutral-500 outline-none focus:border-neutral-600"
+               placeholder="••••••••">
+        <p id="passwordHint" class="mt-1 text-xs text-neutral-500">
+          At least 8 characters.
+        </p>
+      </div>
+
+      <button id="registerBtn"
+              class="w-full rounded-xl bg-dig px-4 py-3 text-sm font-semibold text-white
+                     transition hover:brightness-110 disabled:bg-neutral-800
+                     disabled:text-neutral-500">
+        Create account
+      </button>
+    </div>
+
+    <p class="mt-5 text-center text-sm text-neutral-400">
+      Already have an account?
+      <a href="/login" class="text-dig hover:underline">Log in</a>
+    </p>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

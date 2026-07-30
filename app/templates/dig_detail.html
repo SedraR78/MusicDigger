@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ dig.display_title }} — MusicDigger{% endblock %}
+
+{% block content %}
+  {# La carte du DIG, réutilisée telle quelle #}
+  {% include "components/dig_card.html" %}
+
+  {# ---------- Les commentaires ---------- #}
+  <section class="mt-6" id="commentsSection">
+
+    <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-neutral-400">
+      Comments (<span id="commentTotal">{{ dig.comments_count }}</span>)
+    </h2>
+
+    {# Zone de saisie : visible seulement si connecté (géré par le JS) #}
+    <div id="commentForm" class="mb-5 hidden">
+      <textarea id="commentInput" rows="2" maxlength="500"
+                placeholder="Add your take..."
+                class="w-full resize-none rounded-xl border border-edge bg-panel px-3.5 py-2.5
+                       text-sm placeholder-neutral-500 outline-none focus:border-neutral-600"></textarea>
+      <div class="mt-2 flex justify-end">
+        <button id="postComment" data-dig="{{ dig.id }}"
+                class="rounded-lg bg-dig px-4 py-2 text-sm font-medium text-white
+                       transition hover:brightness-110 disabled:bg-neutral-800
+                       disabled:text-neutral-500" disabled>
+          Comment
+        </button>
+      </div>
+    </div>
+
+    {# Invitation à se connecter, si visiteur #}
+    <div id="commentLoginPrompt"
+         class="mb-5 hidden rounded-xl border border-edge bg-panel px-4 py-3 text-sm text-neutral-400">
+      <a href="/login" class="text-dig hover:underline">Log in</a> to join the conversation.
+    </div>
+
+    {# La liste, remplie par le JS via /api/digs/<id>/comments #}
+    <div id="commentList" class="space-y-3">
+      <p class="text-sm text-neutral-500">Loading comments...</p>
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/digs.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/comments.js') }}"></script>
+{% endblock %}

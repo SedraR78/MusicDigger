@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Log in — MusicDigger{% endblock %}
+
+{% block content %}
+  <div class="mx-auto max-w-sm pt-8">
+
+    <div class="mb-8 text-center">
+      <p class="text-4xl">⛏</p>
+      <h1 class="mt-3 text-2xl font-bold">Welcome back</h1>
+      <p class="mt-1 text-sm text-neutral-400">Log in to keep digging.</p>
+    </div>
+
+    {# Pas de <form> : on soumet en fetch pour rester sur la page et
+       gérer l'erreur sans rechargement. #}
+    <div class="space-y-3">
+      <div>
+        <label class="mb-1.5 block text-sm font-medium">Email</label>
+        <input id="email" type="email" autocomplete="email"
+               class="w-full rounded-xl border border-edge bg-panel px-3.5 py-2.5 text-sm
+                      placeholder-neutral-500 outline-none focus:border-neutral-600"
+               placeholder="you@example.com">
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-medium">Password</label>
+        <input id="password" type="password" autocomplete="current-password"
+               class="w-full rounded-xl border border-edge bg-panel px-3.5 py-2.5 text-sm
+                      placeholder-neutral-500 outline-none focus:border-neutral-600"
+               placeholder="••••••••">
+      </div>
+
+      <button id="loginBtn"
+              class="w-full rounded-xl bg-dig px-4 py-3 text-sm font-semibold text-white
+                     transition hover:brightness-110 disabled:bg-neutral-800
+                     disabled:text-neutral-500">
+        Log in
+      </button>
+    </div>
+
+    <p class="mt-5 text-center text-sm text-neutral-400">
+      No account?
+      <a href="/register" class="text-dig hover:underline">Sign up</a>
+    </p>
+
+    {# Comptes de démonstration : pratique pour tester et pour la soutenance #}
+    <div class="mt-8 rounded-xl border border-edge bg-panel p-3.5">
+      <p class="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-500">
+        Demo accounts
+      </p>
+      <div class="space-y-1">
+        {% for username, email in [
+          ('alexwaves', 'alex@musicdigger.test'),
+          ('juliemoon', 'julie@musicdigger.test'),
+          ('samecho',   'sam@musicdigger.test')
+        ] %}
+          <button data-demo="{{ email }}"
+                  class="block w-full rounded-lg px-2 py-1.5 text-left text-xs
+                         text-neutral-400 hover:bg-edge hover:text-white">
+            {{ username }} — {{ email }}
+          </button>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}
