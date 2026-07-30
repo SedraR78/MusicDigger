@@ -61,15 +61,15 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
 
     # À décommenter au fur et à mesure que les fichiers sont prêts :
-    # from app.routes.dig_routes import dig_bp
-    # from app.routes.interaction_routes import interaction_bp
+    from app.routes.dig_routes import dig_bp
+    from app.routes.interaction_routes import interaction_bp
     # from app.routes.social_routes import social_bp
     # from app.routes.digscover_routes import digscover_bp
     # from app.routes.message_routes import message_bp
     # from app.routes.search_routes import search_bp
     #
-    # app.register_blueprint(dig_bp, url_prefix='/api/digs')
-    # app.register_blueprint(interaction_bp, url_prefix='/api/digs')
+    app.register_blueprint(dig_bp, url_prefix='/api/digs')
+    app.register_blueprint(interaction_bp, url_prefix='/api/digs')
     # app.register_blueprint(social_bp, url_prefix='/api/users')
     # app.register_blueprint(digscover_bp, url_prefix='/api/digscover')
     # app.register_blueprint(message_bp, url_prefix='/api')
