@@ -1,7 +1,7 @@
 """Orchestrateur de la création et de la lecture des DIGs.
 
 Implémente le sequence diagram n°1 du Stage 3 :
-    cache local → Spotify → YouTube → mise en cache → création du DIG
+    lien collé ou recherche → Spotify → YouTube → cache → création du DIG
 """
 
 import re
@@ -13,27 +13,60 @@ from app.services.spotify_service import SpotifyService
 from app.services.youtube_service import YouTubeService
 from app.services.artist_genres import lookup_genre
 
-# Les caractères spéciaux cassent la recherche Spotify : "Pink + White" ne
-# renvoie rien. On les remplace par des espaces.
+# Ces caractères sont interprétés comme des opérateurs par Spotify :
+# "Pink + White" ne renvoie rien tant qu'on ne les retire pas.
 SPECIAL_CHARS = re.compile(r'[+&|!(){}\[\]^"~*?:\\/]')
+
+SPOTIFY_LINK = re.compile(r'open\.spotify\.com/track/([A-Za-z0-9]+)')
+YOUTUBE_LINK = re.compile(r'(?:youtube\.com/watch\?v=|youtu\.be/)([A-Za-z0-9_-]{11})')
 
 
 class DigService:
-
-    # ==================== Recherche ====================
 
     @staticmethod
     def clean_query(query):
         return SPECIAL_CHARS.sub(' ', query or '').strip()
 
     @staticmethod
+    def parse_link(query):
+        """Extrait (source, external_id) d'une URL collée, sinon None.
+
+        Coller un lien est un usage naturel — c'est comme ça que les gens
+        s'échangent de la musique. Sans ce traitement, l'URL partirait
+        telle quelle à Spotify, qui la chercherait comme du texte et
+        renverrait n'importe quoi.
+        """
+        if not query:
+            return None
+
+        match = SPOTIFY_LINK.search(query)
+        if match:
+            return ('spotify', match.group(1))
+
+        match = YOUTUBE_LINK.search(query)
+        if match:
+            return ('youtube', match.group(1))
+
+        return None
+
+    @staticmethod
     def search_tracks(query, limit=10):
         """Recherche avec repli : Spotify d'abord, YouTube ensuite.
 
-        Si Spotify renvoie une liste vide — morceau absent OU API en panne —
-        on bascule sur YouTube. Chaque résultat porte un champ 'source' que le
-        front utilise pour afficher un badge.
+        Un lien collé identifie déjà un morceau précis : on le résout
+        directement au lieu de le chercher.
+
+        Sinon, si Spotify renvoie une liste vide — morceau absent ou API
+        en panne — on bascule sur YouTube. Chaque résultat porte un champ
+        'source' que le front affiche en badge.
         """
+        link = DigService.parse_link(query)
+        if link:
+            source, external_id = link
+            payload = (SpotifyService.get_track(external_id) if source == 'spotify'
+                       else YouTubeService.get_video(external_id))
+            return [payload] if payload else []
+
         cleaned = DigService.clean_query(query)
         if not cleaned:
             return []
@@ -43,8 +76,6 @@ class DigService:
             return results
 
         return YouTubeService.search(cleaned, limit)
-
-    # ==================== Genres ====================
 
     @staticmethod
     def _get_or_create_genre(name):
@@ -59,15 +90,12 @@ class DigService:
 
     @staticmethod
     def _resolve_genre_name(artist_name, user_genre=None):
-        """Cascade de résolution du genre.
+        """Cascade : mapping local, puis genre proposé par l'utilisateur.
 
-        1. mapping local par artiste (le plus fiable)
-        2. genre proposé par l'utilisateur au moment du dig
-        3. None → DigsCover utilise ses autres signaux
+        Si les deux échouent, le morceau reste sans genre et DigsCover
+        s'appuie sur ses autres signaux.
         """
         return lookup_genre(artist_name) or user_genre
-
-    # ==================== Mise en cache ====================
 
     @staticmethod
     def _get_or_create_artist(payload, genre=None):
@@ -77,7 +105,8 @@ class DigService:
 
         external_id = payload.get('artist_external_id')
 
-        # On cherche par identifiant externe (fiable), puis par nom
+        # L'identifiant externe est plus fiable que le nom, qui peut
+        # varier d'une source à l'autre.
         artist = None
         if external_id:
             artist = Artist.query.filter_by(spotify_id=external_id).first()
@@ -85,7 +114,6 @@ class DigService:
             artist = Artist.query.filter_by(name=name).first()
 
         if artist is not None:
-            # Artiste connu mais pas encore classé : on le renseigne
             if artist.genre_id is None and genre is not None:
                 artist.genre_id = genre.id
             return artist
@@ -96,7 +124,7 @@ class DigService:
             genre_id=genre.id if genre else None,
         )
         db.session.add(artist)
-        db.session.flush()   # obtient l'id sans valider la transaction
+        db.session.flush()   # récupère l'id sans valider la transaction
         return artist
 
     @staticmethod
@@ -130,8 +158,8 @@ class DigService:
     def get_or_create_track(payload, user_genre=None):
         """Met un morceau en cache local, avec son artiste, album et genre.
 
-        Le cache évite de rappeler l'API pour un morceau déjà connu, économise
-        du quota, et garde l'app fonctionnelle si l'API externe tombe.
+        Évite de rappeler l'API pour un morceau déjà connu, économise du
+        quota, et garde l'application fonctionnelle si l'API tombe.
         """
         source = payload.get('source', 'spotify')
         field = 'spotify_id' if source == 'spotify' else 'youtube_id'
@@ -145,8 +173,8 @@ class DigService:
 
         existing = Track.query.filter_by(**{field: external_id}).first()
         if existing:
-            # Morceau connu mais non classé : le premier genre proposé le
-            # renseigne pour tout le monde.
+            # Morceau connu mais pas encore classé : le premier genre
+            # proposé le renseigne pour tout le monde.
             if existing.genre_id is None and genre_name:
                 genre = DigService._get_or_create_genre(genre_name)
                 if genre:
@@ -176,16 +204,13 @@ class DigService:
         db.session.commit()
         return track
 
-    # ==================== Résolution par identifiant ====================
-
     @staticmethod
     def resolve_track(source, external_id, user_genre=None):
         """Récupère un morceau depuis son identifiant externe.
 
-        Le client n'envoie qu'un id — jamais les métadonnées. C'est le serveur
-        qui interroge l'API et remplit le titre, l'artiste, la pochette. Un
-        utilisateur ne peut donc pas falsifier les informations d'un son : la
-        source de vérité reste l'API, pas le navigateur.
+        Le client n'envoie qu'un id, jamais les métadonnées. C'est le
+        serveur qui interroge l'API et remplit le titre, l'artiste et la
+        pochette — un utilisateur ne peut donc pas falsifier un son.
         """
         if source not in ('spotify', 'youtube') or not external_id:
             return None
@@ -210,20 +235,16 @@ class DigService:
 
         return DigService.get_or_create_track(payload, user_genre=user_genre)
 
-    # ==================== Création ====================
-
     @staticmethod
     def create_dig(user_id, content, source=None, external_id=None,
                    genre=None, manual=None):
-        """Crée un DIG. L'avis est obligatoire : c'est LA règle produit.
+        """Crée un DIG. L'avis est obligatoire, c'est la règle du produit.
 
-        Deux chemins :
-            - source + external_id → le serveur résout le morceau
-            - manual               → saisie manuelle (3e niveau de repli)
+        Deux chemins possibles : soit le serveur résout le morceau depuis
+        son identifiant, soit l'utilisateur a saisi les infos à la main.
 
-        Un utilisateur peut poster plusieurs DIGs sur le même morceau : son
-        avis peut évoluer, ou porter sur un aspect différent. C'est volontaire,
-        donc pas de contrainte d'unicité sur (user_id, track_id).
+        Plusieurs DIGs sur le même morceau sont autorisés — un avis peut
+        évoluer, ou porter sur un aspect différent.
         """
         if not content or not content.strip():
             raise ValueError('An opinion is required to post a DIG')
@@ -237,7 +258,6 @@ class DigService:
             dig.track_id = track.id
 
         elif manual:
-            # Ni Spotify ni YouTube n'ont trouvé : on accepte quand même
             if not manual.get('title'):
                 raise ValueError('A song title is required')
             dig.song_title = manual.get('title')
@@ -252,14 +272,12 @@ class DigService:
 
         return dig.save()
 
-    # ==================== Lectures ====================
-
     @staticmethod
     def trending(period='all', limit=20):
         """Classement par score = upvotes + 2 × redigs.
 
-        Le tri se fait EN SQL grâce aux compteurs dénormalisés : une seule
-        requête, 20 lignes rapatriées.
+        Le tri se fait en SQL grâce aux compteurs dénormalisés : une seule
+        requête, vingt lignes rapatriées.
         """
         query = Dig.query
 
